@@ -210,16 +210,21 @@ public final class VDatabaseTrivial implements VDatabaseType
         final Money new_current = current.plus(status.product().price());
         this.purchases_cash.put(owner, new_current);
 
-        final VProductStatus new_status = status
-          .withPurchases(status.purchases().add(BigInteger.ONE))
-          .withStock(status.stock().subtract(BigInteger.ONE));
+        if (!this.random.randomFailure()) {
+          final VProductStatus new_status = status
+            .withPurchases(status.purchases().add(BigInteger.ONE))
+            .withStock(status.stock().subtract(BigInteger.ONE));
+
+          this.product_definitions.put(id, new_status);
+          this.diskCommit();
+          return valid("The machine dispenses " + status.product().name());
+        }
+
+        final VProductStatus new_status =
+          status.withPurchases(status.purchases().add(BigInteger.ONE));
 
         this.product_definitions.put(id, new_status);
         this.diskCommit();
-
-        if (!this.random.randomFailure()) {
-          return valid("The machine dispenses " + status.product().name());
-        }
         return invalid("The machine makes a grinding noise.");
       }
       return invalid("The product is out of stock.");

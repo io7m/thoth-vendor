@@ -215,6 +215,11 @@ public abstract class VDatabaseContract
       purchase_result.getError(),
       StringContains.containsString("machine makes a grinding noise"));
 
+    final VProductStatus status = db.products().get(id);
+    Assert.assertEquals(product, status.product());
+    Assert.assertEquals(BigInteger.valueOf(10L), status.stock());
+    Assert.assertEquals(BigInteger.valueOf(1L), status.purchases());
+
     db.close();
   }
 
